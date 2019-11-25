@@ -19,16 +19,6 @@ AVM         &AVM::operator=(const AVM &r) {
 	return *this;    
 }
 
-/*------------------ERROR_MANAGEMENT-----------------------*/
-
-const char      *AVM::SyntaxError::what() const throw() {
-    return "Syntax Error";
-}
-
-const char      *AVM::ElementNbError::what() const throw() {
-    return "Wrong number of elements";
-}
-
 /*------------------LINE_MANAGEMENT-----------------------*/
 
 std::string AVM::trimLine(std::string old_line) {
@@ -54,7 +44,6 @@ std::string AVM::trimLine(std::string old_line) {
 }
 
 void		AVM::lineAnalysis(std::string line) {
-	Command	*cmd = new Command;
 	std::vector<std::string> command;
 
 	line = trimLine(line);
@@ -62,6 +51,5 @@ void		AVM::lineAnalysis(std::string line) {
 	if (command.size() > 2)
 		throw ElementNbError();
 	if (command.size() != 0)
-		cmd->dispatchCommand(command);
-	delete cmd;
+		std::cout << "command: \"" << command[0] << "\"" << std::endl;
 }

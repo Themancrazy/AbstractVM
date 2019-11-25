@@ -6,12 +6,12 @@
 #    By: anjansse <anjansse@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/28 21:57:22 by anjansse          #+#    #+#              #
-#    Updated: 2019/11/24 21:11:49 by anjansse         ###   ########.fr        #
+#    Updated: 2019/11/25 10:51:38 by anjansse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= avm
-GENERAL		= AVM.cpp main.cpp Command.cpp
+GENERAL		= AVM.cpp main.cpp Exception.cpp
 
 SRCS		= $(addprefix src/, $(GENERAL))
 

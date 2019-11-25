@@ -1,4 +1,5 @@
 #include "AVM.hpp"
+#include "Exception.hpp"
 
 static inline void
 readStdin(void) {
@@ -30,10 +31,10 @@ main(int ac, char **av) {
     	    readFile(av[1]);
     	if (ac == 1)
     	    readStdin();
-	} catch (AVM::SyntaxError &e) {
+	} catch (SyntaxError &e) {
 			std::cout << e.what() << std::endl;
 	}
-	catch (AVM::ElementNbError &e) {
+	catch (ElementNbError &e) {
 			std::cout << e.what() << std::endl;
 	}
 	return (0);

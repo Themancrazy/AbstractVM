@@ -1,11 +1,7 @@
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <unistd.h>
-#include <string>
-#include <stack> 
+#ifndef IOPERAND_HPP
+# define IOPERAND_HPP
+
+#include "MainHeader.hpp"
 
 enum eOperandType
 {
@@ -28,3 +24,5 @@ public:
     virtual std::string const & toString( void ) const = 0; // String representation of the instance
     virtual ~IOperand( void ) {}
 };
+
+#endif
