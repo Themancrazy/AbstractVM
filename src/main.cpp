@@ -7,12 +7,16 @@ readStdin(void) {
 
 static inline void
 readFile(char *f) {
+	AVM *avm = new AVM();
 	std::string	filename(f);
 	std::ifstream myfile;
+	std::string	line;
 
 	myfile.open(filename);
+	while (getline(myfile, line))
+		avm->lineAnalysis(line);
 	myfile.close();
-	std::cout << "filename: " << filename << std::endl;
+	delete avm;
 }
 
 int
@@ -21,9 +25,16 @@ main(int ac, char **av) {
 		std::cout << "usage: ./avm (optional file)." << std::endl;
 		return (0);
 	}
-    if (ac == 2)
-        readFile(av[1]);
-    if (ac == 1)
-        readStdin();
+	try {
+    	if (ac == 2)
+    	    readFile(av[1]);
+    	if (ac == 1)
+    	    readStdin();
+	} catch (AVM::SyntaxError &e) {
+			std::cout << e.what() << std::endl;
+	}
+	catch (AVM::ElementNbError &e) {
+			std::cout << e.what() << std::endl;
+	}
 	return (0);
 }

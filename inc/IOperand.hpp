@@ -1,4 +1,11 @@
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <unistd.h>
+#include <string>
+#include <stack> 
 
 enum eOperandType
 {
