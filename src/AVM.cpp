@@ -1,4 +1,4 @@
-#include "AVM.hpp"
+#include "MainHeader.hpp"
 
 /*------------------CONST/DEST & OVERLOAD-----------------------*/
 
@@ -51,5 +51,16 @@ void		AVM::lineAnalysis(std::string line) {
 	if (command.size() > 2)
 		throw ElementNbError();
 	if (command.size() != 0)
-		std::cout << "command: \"" << command[0] << "\"" << std::endl;
+		dispatchCmd(command);
+}
+
+void		AVM::dispatchCmd(std::vector<std::string> cmd) {
+	std::cout << "\"" << cmd[0] << "\"" << std::endl;
+	dispatchTable.find(cmd[0]);
+
+	// it->second;
+	// if (it == dispatchTable.end())
+	// 	throw UnknownInstruction();
+	// std::cout << "cmd is: " << it->first << std::endl;
+	// std::cout << cmd[0] << std::endl;
 }

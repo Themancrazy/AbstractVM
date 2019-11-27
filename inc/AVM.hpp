@@ -13,6 +13,7 @@ class AVM {
         
         void        lineAnalysis(std::string line);
         std::string trimLine(std::string old_line);
+        void        dispatchCmd(std::vector<std::string> cmd);
     private:
         std::stack<eOperandType> AvmStack;
 };

@@ -1,8 +1,7 @@
-#include "AVM.hpp"
-#include "Exception.hpp"
+#include "MainHeader.hpp"
 
 static inline void
-readStdin(void) {
+readStdinToFile(void) {
 	std::cout << "read stdin" << std::endl;	
 }
 
@@ -27,15 +26,12 @@ main(int ac, char **av) {
 		return (0);
 	}
 	try {
+		if (ac == 1)
+    	    readStdinToFile();
     	if (ac == 2)
     	    readFile(av[1]);
-    	if (ac == 1)
-    	    readStdin();
-	} catch (SyntaxError &e) {
-			std::cout << e.what() << std::endl;
-	}
-	catch (ElementNbError &e) {
-			std::cout << e.what() << std::endl;
+	} catch (std::exception &e) {
+			std::cout << "Error: \x1b[91m" << e.what() << "\x1b[0m"<< std::endl;
 	}
 	return (0);
 }

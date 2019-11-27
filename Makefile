@@ -6,12 +6,12 @@
 #    By: anjansse <anjansse@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/28 21:57:22 by anjansse          #+#    #+#              #
-#    Updated: 2019/11/25 10:51:38 by anjansse         ###   ########.fr        #
+#    Updated: 2019/11/25 19:31:31 by anjansse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= avm
-GENERAL		= AVM.cpp main.cpp Exception.cpp
+GENERAL		= AVM.cpp main.cpp Exception.cpp Operations.cpp
 
 SRCS		= $(addprefix src/, $(GENERAL))
 
@@ -19,7 +19,7 @@ INCLUDES	= -I inc/ -I ~/.brew/Cellar/boost/1.71.0/include/
 
 LIBRARY		= -L ~/.brew/Cellar/boost/1.71.0/lib/
 
-CC			= clang++
+CC			= clang++ -std=c++11
 
 SEGV		= -g -fsanitize=address -fsanitize=undefined
 
