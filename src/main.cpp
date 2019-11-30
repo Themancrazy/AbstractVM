@@ -1,12 +1,8 @@
 #include "MainHeader.hpp"
+#include <stdio.h>
 
 static inline void
-readStdinToFile(void) {
-	std::cout << "read stdin" << std::endl;	
-}
-
-static inline void
-readFile(char *f) {
+readFile(const char *f) {
 	AVM *avm = new AVM();
 	std::string	filename(f);
 	std::ifstream myfile;
@@ -19,6 +15,22 @@ readFile(char *f) {
 	delete avm;
 }
 
+static inline void
+readStdin(std::istream& in) {
+	std::string line;
+	std::string filename;
+	std::ofstream file;
+
+	filename = "inputFile";
+	file.open(filename);
+	while (getline(in, line))
+		file << line << std::endl;
+	readFile((filename.c_str()));
+	file.close();
+	if (remove(filename.c_str()) != 0)
+		throw "Couldn't delete file";
+}
+
 int
 main(int ac, char **av) {
 	if (ac > 2) {
@@ -27,7 +39,7 @@ main(int ac, char **av) {
 	}
 	try {
 		if (ac == 1)
-    	    readStdinToFile();
+    	    readStdin(std::cin);
     	if (ac == 2)
     	    readFile(av[1]);
 	} catch (std::exception &e) {

@@ -36,6 +36,8 @@ void					cmd_mod(IOperand *);
 void					cmd_print(IOperand *);
 void					cmd_exit(IOperand *);
 
+bool					isNumber(std::string s);
+
 static std::map<std::string, void (*)(IOperand*)> dispatchTable  = {
 	{"push", &cmd_push},
 	{"pop", &cmd_pop},
@@ -48,6 +50,14 @@ static std::map<std::string, void (*)(IOperand*)> dispatchTable  = {
 	{"mod", &cmd_mod},
 	{"print", &cmd_print},
 	{"exit", &cmd_exit}
+};
+
+static std::map<std::string, eOperandType> types = {
+    {"int8", Int8},
+    {"int16", Int16},
+    {"int32", Int32},
+    {"float", Float},
+    {"double", Double}
 };
 
 #endif
