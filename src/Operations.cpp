@@ -25,7 +25,6 @@ IOperand const *Factory::createInt8( std::string const & value ) const {
 		throw OverflowError();
 	else if (number < std::numeric_limits<char>::min())
 		throw UnderflowError();
-	std::cout << "number: " << number << std::endl;
 	return (new class Int8(static_cast<char>(number)));
 }
 
@@ -39,7 +38,6 @@ IOperand const *Factory::createInt16( std::string const & value ) const {
 		throw OverflowError();
 	else if (number < std::numeric_limits<short>::min())
 		throw UnderflowError();
-	std::cout << "number: " << number << std::endl;
 	return (new class Int16(static_cast<short>(number)));
 }
 
@@ -53,7 +51,6 @@ IOperand const *Factory::createInt32( std::string const & value ) const {
 		throw OverflowError();
 	else if (number < std::numeric_limits<int>::min())
 		throw UnderflowError();
-	std::cout << "number: " << number << std::endl;
 	return (new class Int32(number));
 }
 
@@ -67,7 +64,6 @@ IOperand const *Factory::createFloat( std::string const & value ) const {
 		throw OverflowError();
 	else if (number < std::numeric_limits<float>::min())
 		throw UnderflowError();
-	std::cout << "number: " << number << std::endl;
 	return (new class Float(number));
 }
 
@@ -81,7 +77,6 @@ IOperand const *Factory::createDouble( std::string const & value ) const {
 		throw OverflowError();
 	else if (number < std::numeric_limits<double>::min())
 		throw UnderflowError();
-	std::cout << "number: " << number << std::endl;
 	return (new class Double(number));
 }
 

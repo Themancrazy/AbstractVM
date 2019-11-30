@@ -111,9 +111,7 @@ static IOperand		*parseAndCreateOperand(std::vector<std::string> cmd) {
 		throw UnknownInstruction();
 	type = types.find(cmd[1].substr(0, cmd[1].find("(")))->second;
 	value = cmd[1].substr(posOpen + 1, posClose - posOpen - 1);
-	std::cout << "value: " << value << std::endl;
 	return (const_cast<IOperand*>(AOperand::factory.createOperand(type, value)));
-	// return (nullptr);
 }
 
 void		AVM::dispatchCmd(std::vector<std::string> cmd) {
@@ -121,7 +119,6 @@ void		AVM::dispatchCmd(std::vector<std::string> cmd) {
 
 	if (cmd[0] == "push" || cmd[0] == "assert")
 		op = parseAndCreateOperand(cmd);
-		// op = const_cast<IOperand*>(AOperand::factory.createOperand());
 	if (dispatchTable.find(cmd[0]) != dispatchTable.end())
 		dispatchTable[cmd[0]](op);
 	else
