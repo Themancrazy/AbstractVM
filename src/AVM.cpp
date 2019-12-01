@@ -21,47 +21,6 @@ AVM         &AVM::operator=(const AVM &r) {
 
 /*------------------LINE_MANAGEMENT-----------------------*/
 
-std::string AVM::trimLine(std::string old_line) {
-	int	j = -1;
-	std::string new_line;
-
-	boost::algorithm::trim(old_line);
-	std::replace( old_line.begin(), old_line.end(), '\t', ' ');
-	new_line = old_line;
-	for (int i = -1; i < (int)old_line.length(); ++i) {
-		if (old_line[i] == ' ') {
-			while (old_line[i] == ' ') {
-				++i;
-			}
-			new_line[j] =  ' ';
-			++j;
-		}
-		new_line[j] = old_line[i];
-		++j;
-	}
-	new_line.erase(j);
-	return (new_line);
-}
-
-void		AVM::lineAnalysis(std::string line, bool isStdin, bool *isExit) {
-	std::vector<std::string> command;
-
-	if (isStdin == true && line == ";;" && this->_isExit == false)
-		throw NoExit();
-	else if (isStdin == true && line == ";;" && this->_isExit == true)
-		std::exit(EXIT_SUCCESS);
-	if (isspace(line[0]))
-		line = trimLine(line);
-	boost::split(command, line, boost::is_any_of(" "));
-	if (command[0][0] == ';' || line.length() < 1)
-		return ;
-	if (command.size() > 2)
-		throw ElementNbError();
-	if (command.size() != 0)
-		dispatchCmd(command);
-	*isExit = this->_isExit;
-}
-
 bool 			isNumber(std::string s)
 {
 	int n = s.size();
@@ -99,6 +58,57 @@ bool 			isNumber(std::string s)
     return s[i] == '\0';
 }
 
+std::string AVM::trimLine(std::string old_line) {
+	int	j = -1;
+	std::string new_line;
+
+	boost::algorithm::trim(old_line);
+	std::replace( old_line.begin(), old_line.end(), '\t', ' ');
+	new_line = old_line;
+	for (int i = -1; i < (int)old_line.length(); ++i) {
+		if (old_line[i] == ' ') {
+			while (old_line[i] == ' ') {
+				++i;
+			}
+			new_line[j] =  ' ';
+			++j;
+		}
+		new_line[j] = old_line[i];
+		++j;
+	}
+	new_line.erase(j);
+	return (new_line);
+}
+
+static void
+checkForComments(std::vector<std::string> *cmd) {
+	for (int i = 0; i < (int)(*cmd).size();i++) {
+		if ((*cmd)[i][0] == ';') {
+			(*cmd).erase((*cmd).begin() + i, (*cmd).end());
+			return ;
+		}
+	}
+}
+
+void		AVM::lineAnalysis(std::string line, bool isStdin, bool *isExit) {
+	std::vector<std::string> command;
+
+	if (isStdin == true && line == ";;" && this->_isExit == false)
+		throw NoExit();
+	else if (isStdin == true && line == ";;" && this->_isExit == true)
+		std::exit(EXIT_SUCCESS);
+	if (isspace(line[0]))
+		line = trimLine(line);
+	boost::split(command, line, boost::is_any_of(" "));
+	if (command[0][0] == ';' || line.length() < 1)
+		return ;
+	checkForComments(&command);
+	if (command.size() > 2)
+		throw ElementNbError();
+	if (command.size() != 0)
+		dispatchCmd(command);
+	*isExit = this->_isExit;
+}
 
 static IOperand		*parseAndCreateOperand(std::vector<std::string> cmd) {
 	size_t		posOpen;
@@ -158,14 +168,24 @@ void		AVM::dispatchCmd(std::vector<std::string> cmd) {
 /*------------------COMMANDS_IMPLEMENTATION-------------------*/
 
 void					AVM::cmd_push(IOperand * value) {
+	logsFile.open(logsFilename, std::fstream::app);
+	logsFile << "Pushed " << value->toString() << " to stack." << std::endl;
 	this->avmStack.push_front(value);
+	logsFile.close();
 }
 
 void					AVM::cmd_pop(IOperand *) {
-	if (this->avmStack.size() < 1)
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 1) {
+		logsFile << "Error: couldn't pop empty stack" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidPop();
-	else
+	}
+	else {
+		logsFile << "Poped " << this->avmStack.front()->toString() << " from front of stack" << std::endl;
 		this->avmStack.pop_front();
+		logsFile.close();
+	}
 }
 
 void					AVM::cmd_dump(IOperand *) {
@@ -176,26 +196,42 @@ void					AVM::cmd_dump(IOperand *) {
 		tmp.pop_front();
 	}
 	outputFile.close();
+	logsFile.open(logsFilename, std::fstream::app);
+	logsFile << "Dumped current state of stack" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_assert(IOperand *value) {
+	logsFile.open(logsFilename, std::fstream::app);
 	if (this->avmStack.front()->getType() != value->getType() || this->avmStack.front()->toString() != value->toString())
+	{
+		logsFile << "Error: Invalid assert instruction" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidAssert();
+	}
+	logsFile << "Assert between " << value->toString() << " and front of stack succeeded" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_add(IOperand *) {
 	IOperand *val1;
 	IOperand *val2;
 	IOperand *res;
-
-	if (this->avmStack.size() < 2)
+	
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 2) {
+		logsFile << "Error: couldn't poped two values from stack (stack doesn't contain 2 elements)" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidOperationStack();
+	}
 	val1 = this->avmStack.front();
 	this->avmStack.pop_front();
 	val2 = this->avmStack.front();
 	this->avmStack.pop_front();
 	res = const_cast<IOperand*>(*val1 + *val2);
-	cmd_push(res);
+	this->avmStack.push_front(res);
+	logsFile << "Added " << val1->toString() << " and " << val2->toString() << " together, poped the two values and stacked the result (" << res->toString() << ")" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_sub(IOperand *) {
@@ -203,14 +239,20 @@ void					AVM::cmd_sub(IOperand *) {
 	IOperand *val2;
 	IOperand *res;
 
-	if (this->avmStack.size() < 2)
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 2) {
+		logsFile << "Error: couldn't poped two values from stack (stack doesn't contain 2 elements)" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidOperationStack();
-	val1 = this->avmStack.front();
-	this->avmStack.pop_front();
+	}
 	val2 = this->avmStack.front();
 	this->avmStack.pop_front();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
 	res = const_cast<IOperand*>(*val1 - *val2);
-	cmd_push(res);
+	this->avmStack.push_front(res);
+	logsFile << "Substracted " << val1->toString() << " and " << val2->toString() << " together, poped the two values and stacked the result (" << res->toString() << ")" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_mul(IOperand *) {
@@ -218,14 +260,20 @@ void					AVM::cmd_mul(IOperand *) {
 	IOperand *val2;
 	IOperand *res;
 
-	if (this->avmStack.size() < 2)
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 2) {
+		logsFile << "Error: couldn't poped two values from stack (stack doesn't contain 2 elements)" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidOperationStack();
+	}
 	val1 = this->avmStack.front();
 	this->avmStack.pop_front();
 	val2 = this->avmStack.front();
 	this->avmStack.pop_front();
 	res = const_cast<IOperand*>(*val1 * *val2);
-	cmd_push(res);
+	this->avmStack.push_front(res);
+	logsFile << "Multiplied " << val1->toString() << " and " << val2->toString() << " together, poped the two values and stacked the result (" << res->toString() << ")" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_div(IOperand *) {
@@ -233,14 +281,20 @@ void					AVM::cmd_div(IOperand *) {
 	IOperand *val2;
 	IOperand *res;
 
-	if (this->avmStack.size() < 2)
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 2) {
+			logsFile << "Error: couldn't poped two values from stack (stack doesn't contain 2 elements)" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidOperationStack();
-	val1 = this->avmStack.front();
-	this->avmStack.pop_front();
+	}
 	val2 = this->avmStack.front();
 	this->avmStack.pop_front();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
 	res = const_cast<IOperand*>(*val1 / *val2);
-	cmd_push(res);
+	this->avmStack.push_front(res);
+	logsFile << "Divided " << val1->toString() << " and " << val2->toString() << " together, poped the two values and stacked the result (" << res->toString() << ")" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_mod(IOperand *) {
@@ -248,24 +302,34 @@ void					AVM::cmd_mod(IOperand *) {
 	IOperand *val2;
 	IOperand *res;
 
-	if (this->avmStack.size() < 2)
+	logsFile.open(logsFilename, std::fstream::app);
+	if (this->avmStack.size() < 2) {
+		logsFile << "Error: couldn't poped two values from stack (stack doesn't contain 2 elements)" << std::endl << std::endl;
+		logsFile.close();
 		throw InvalidOperationStack();
-	val1 = this->avmStack.front();
-	this->avmStack.pop_front();
+	}
 	val2 = this->avmStack.front();
 	this->avmStack.pop_front();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
 	res = const_cast<IOperand*>(*val1 % *val2);
-	cmd_push(res);
+	this->avmStack.push_front(res);
+	logsFile << "Modulo " << val1->toString() << " and " << val2->toString() << " together, poped the two values and stacked the result (" << res->toString() << ")" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_print(IOperand *) {
 	int	getValue;
+
+	logsFile.open(logsFilename, std::fstream::app);
 	if (this->avmStack.front()->getType() != Int8)
 		throw InvalidPrint();
 	getValue = std::stoi(this->avmStack.front()->toString());
 	outputFile.open(outputFilename, std::ios_base::app);
 	outputFile << static_cast<char>(getValue);
-
+	outputFile.close();
+	logsFile << "Printed \"" << static_cast<char>(getValue) <<  "\" to screen" << std::endl;
+	logsFile.close();
 }
 
 void					AVM::cmd_exit(IOperand *) {

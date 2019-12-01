@@ -10,15 +10,21 @@ readFile(const char *f, bool isStdin) {
 	std::string	line;
 
 	myfile.open(filename);
-	while (getline(myfile, line))
-		avm->lineAnalysis(line, isStdin, &isExit);
+	while (getline(myfile, line)) {
+		try {
+			avm->lineAnalysis(line, isStdin, &isExit);
+		}
+		catch (std::exception &e) {
+			std::cout << "\x1b[1mError: \x1b[91m" << e.what() << "\x1b[0m"<< std::endl;
+		}
+	}
 	if (isExit == false)
 		throw NoExit();
 	myfile.close();
 	myfile.open(outputFilename);
 	std::cout << "\x1b[1m\x1b[92m";
 	std::cout << "##########################################################################################" << std::endl;
-	std::cout << "                                        \x1b[36m\x1b[4mDump Output:\x1b[0m\x1b[1m\x1b[92m" << std::endl;
+	std::cout << "                                        \x1b[36m\x1b[4mOutput:\x1b[0m\x1b[1m\x1b[92m" << std::endl;
 	std::cout << "                                                                                          " << std::endl;
 	while (getline(myfile, line)) {
 		std::cout << "\t\t\t                  \x1b[33m" << line << "\x1b[92m" << std::endl;
@@ -91,6 +97,8 @@ main(int ac, char **av) {
 	}
 	try {
 		myfile.open(outputFilename, std::ofstream::out | std::ofstream::trunc);
+		myfile.close();
+		myfile.open(logsFilename, std::ofstream::out | std::ofstream::trunc);
 		myfile.close();
 		if (ac == 1) {
 			printHeader();
