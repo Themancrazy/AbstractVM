@@ -43,18 +43,23 @@ std::string AVM::trimLine(std::string old_line) {
 	return (new_line);
 }
 
-void		AVM::lineAnalysis(std::string line) {
+void		AVM::lineAnalysis(std::string line, bool isStdin, bool *isExit) {
 	std::vector<std::string> command;
 
+	if (isStdin == true && line == ";;" && this->_isExit == false)
+		throw NoExit();
+	else if (isStdin == true && line == ";;" && this->_isExit == true)
+		std::exit(EXIT_SUCCESS);
 	if (isspace(line[0]))
 		line = trimLine(line);
 	boost::split(command, line, boost::is_any_of(" "));
-	if (command[0][0] == ';')
+	if (command[0][0] == ';' || line.length() < 1)
 		return ;
 	if (command.size() > 2)
 		throw ElementNbError();
 	if (command.size() != 0)
 		dispatchCmd(command);
+	*isExit = this->_isExit;
 }
 
 bool 			isNumber(std::string s)
@@ -119,8 +124,150 @@ void		AVM::dispatchCmd(std::vector<std::string> cmd) {
 
 	if (cmd[0] == "push" || cmd[0] == "assert")
 		op = parseAndCreateOperand(cmd);
-	if (dispatchTable.find(cmd[0]) != dispatchTable.end())
-		dispatchTable[cmd[0]](op);
+	// if (dispatchTable.find(cmd[0]) != dispatchTable.end())
+		// dispatchTable[cmd[0]](op);
+	if (this->_isExit == true)
+		return ;
+	else if (cmd[0] == "push")
+		this->cmd_push(op);
+	else if (cmd[0] == "pop")
+		this->cmd_pop(op);
+	else if (cmd[0] == "dump")
+		this->cmd_dump(op);
+	else if (cmd[0] == "assert")
+		this->cmd_assert(op);
+	else if (cmd[0] == "add")
+		this->cmd_add(op);
+	else if (cmd[0] == "sub")
+		this->cmd_sub(op);
+	else if (cmd[0] == "mul")
+		this->cmd_mul(op);
+	else if (cmd[0] == "div")
+		this->cmd_div(op);
+	else if (cmd[0] == "mod")
+		this->cmd_mod(op);
+	else if (cmd[0] == "print")
+		this->cmd_print(op);
+	else if (cmd[0] == "exit")
+		this->cmd_exit(op);
 	else
 		throw UnknownInstruction();
+}
+
+
+/*------------------COMMANDS_IMPLEMENTATION-------------------*/
+
+void					AVM::cmd_push(IOperand * value) {
+	this->avmStack.push_front(value);
+}
+
+void					AVM::cmd_pop(IOperand *) {
+	if (this->avmStack.size() < 1)
+		throw InvalidPop();
+	else
+		this->avmStack.pop_front();
+}
+
+void					AVM::cmd_dump(IOperand *) {
+	std::deque<IOperand*> tmp = this->avmStack;
+	outputFile.open(outputFilename, std::ios_base::app);
+	while (tmp.size() > 0) {
+		outputFile << tmp.front()->toString() << std::endl;
+		tmp.pop_front();
+	}
+	outputFile.close();
+}
+
+void					AVM::cmd_assert(IOperand *value) {
+	if (this->avmStack.front()->getType() != value->getType() || this->avmStack.front()->toString() != value->toString())
+		throw InvalidAssert();
+}
+
+void					AVM::cmd_add(IOperand *) {
+	IOperand *val1;
+	IOperand *val2;
+	IOperand *res;
+
+	if (this->avmStack.size() < 2)
+		throw InvalidOperationStack();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
+	val2 = this->avmStack.front();
+	this->avmStack.pop_front();
+	res = const_cast<IOperand*>(*val1 + *val2);
+	cmd_push(res);
+}
+
+void					AVM::cmd_sub(IOperand *) {
+	IOperand *val1;
+	IOperand *val2;
+	IOperand *res;
+
+	if (this->avmStack.size() < 2)
+		throw InvalidOperationStack();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
+	val2 = this->avmStack.front();
+	this->avmStack.pop_front();
+	res = const_cast<IOperand*>(*val1 - *val2);
+	cmd_push(res);
+}
+
+void					AVM::cmd_mul(IOperand *) {
+	IOperand *val1;
+	IOperand *val2;
+	IOperand *res;
+
+	if (this->avmStack.size() < 2)
+		throw InvalidOperationStack();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
+	val2 = this->avmStack.front();
+	this->avmStack.pop_front();
+	res = const_cast<IOperand*>(*val1 * *val2);
+	cmd_push(res);
+}
+
+void					AVM::cmd_div(IOperand *) {
+	IOperand *val1;
+	IOperand *val2;
+	IOperand *res;
+
+	if (this->avmStack.size() < 2)
+		throw InvalidOperationStack();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
+	val2 = this->avmStack.front();
+	this->avmStack.pop_front();
+	res = const_cast<IOperand*>(*val1 / *val2);
+	cmd_push(res);
+}
+
+void					AVM::cmd_mod(IOperand *) {
+	IOperand *val1;
+	IOperand *val2;
+	IOperand *res;
+
+	if (this->avmStack.size() < 2)
+		throw InvalidOperationStack();
+	val1 = this->avmStack.front();
+	this->avmStack.pop_front();
+	val2 = this->avmStack.front();
+	this->avmStack.pop_front();
+	res = const_cast<IOperand*>(*val1 % *val2);
+	cmd_push(res);
+}
+
+void					AVM::cmd_print(IOperand *) {
+	int	getValue;
+	if (this->avmStack.front()->getType() != Int8)
+		throw InvalidPrint();
+	getValue = std::stoi(this->avmStack.front()->toString());
+	outputFile.open(outputFilename, std::ios_base::app);
+	outputFile << static_cast<char>(getValue);
+
+}
+
+void					AVM::cmd_exit(IOperand *) {
+	this->_isExit = true;
 }

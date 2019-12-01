@@ -39,6 +39,10 @@ struct InvalidAssert : public std::exception {
             const char*     what() const throw();
 };
 
+struct InvalidPrint : public std::exception {
+            const char*     what() const throw();
+};
+
 struct InvalidOperationStack : public std::exception {
             const char*     what() const throw();
 };

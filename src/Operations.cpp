@@ -85,28 +85,52 @@ IOperand const *Factory::createDouble( std::string const & value ) const {
 Factory                 AOperand::factory;
 
 IOperand const			*AOperand::operator+(IOperand const &value) const {
-	(void)value;
-	return (nullptr);
+	eOperandType type;
+	std::ostringstream newValue;
+
+	type = std::max(this->getType(), value.getType());
+	newValue << (std::stod(this->toString()) + (std::stod(value.toString())));
+	return (this->factory.createOperand(type, newValue.str()));
 }
 
 IOperand const			*AOperand::operator-(IOperand const &value) const {
-	(void)value;
-	return (nullptr);
+	eOperandType type;
+	std::ostringstream newValue;
+
+	type = std::max(this->getType(), value.getType());
+	newValue << (std::stod(this->toString()) - (std::stod(value.toString())));
+	return (this->factory.createOperand(type, newValue.str()));
 }
 
 IOperand const			*AOperand::operator*(IOperand const &value) const {
-	(void)value;
-	return (nullptr);
+	eOperandType type;
+	std::ostringstream newValue;
+
+	type = std::max(this->getType(), value.getType());
+	newValue << (std::stod(this->toString()) * (std::stod(value.toString())));
+	return (this->factory.createOperand(type, newValue.str()));
 }
 
 IOperand const			*AOperand::operator/(IOperand const &value) const {
-	(void)value;
-	return (nullptr);
+	eOperandType type;
+	std::ostringstream newValue;
+
+	type = std::max(this->getType(), value.getType());
+	if (std::stoi(value.toString()) == 0)
+		throw DivisionByZero();
+	newValue << (std::stod(this->toString()) / (std::stod(value.toString())));
+	return (this->factory.createOperand(type, newValue.str()));
 }
 
 IOperand const			*AOperand::operator%(IOperand const &value) const {
-	(void)value;
-	return (nullptr);
+	eOperandType type;
+	std::ostringstream newValue;
+
+	type = std::max(this->getType(), value.getType());
+	if (std::stoi(value.toString()) == 0)
+		throw DivisionByZero();
+	newValue << (std::stoi(this->toString()) % (std::stoi(value.toString())));
+	return (this->factory.createOperand(type, newValue.str()));
 }
 
 /*------------------OPERAND_CLASS_IMPLEMENTATION-------------------*/
@@ -118,7 +142,7 @@ IOperand const			*AOperand::operator%(IOperand const &value) const {
 Int8::Int8(void) : _value(0), _valToStr("") {return ;}
 Int8::Int8(char value) : _value(value) {
 	std::ostringstream convert;   // stream used for the conversion
-	convert << value;
+	convert << static_cast<int>(value);
 	this->_valToStr = convert.str();
 	return ;
 }
@@ -190,58 +214,3 @@ Double::~Double(void) {return ;}
 std::string const               &Double::toString(void) const { return this->_valToStr; }
 int                             Double::getPrecision(void) const { return 15; }
 eOperandType                    Double::getType(void) const { return eOperandType::Double; }
-
-/*------------------COMMANDS_IMPLEMENTATION-------------------*/
-
-void					cmd_push(IOperand * value) {
-	(void)value;
-	std::cout << "push" << std::endl;
-}
-
-void					cmd_pop(IOperand *) {
-	std::cout << "pop" << std::endl;
-}
-
-void					cmd_dump(IOperand *) {
-	std::cout << "dump" << std::endl;
-}
-
-void					cmd_assert(IOperand *value) {
-	(void)value;
-	std::cout << "assert" << std::endl;
-}
-
-void					cmd_add(IOperand *) {
-	std::cout << "add" << std::endl;
-
-}
-
-void					cmd_sub(IOperand *) {
-	std::cout << "sub" << std::endl;
-
-}
-
-void					cmd_mul(IOperand *) {
-	std::cout << "mul" << std::endl;
-
-}
-
-void					cmd_div(IOperand *) {
-	std::cout << "div" << std::endl;
-
-}
-
-void					cmd_mod(IOperand *) {
-	std::cout << "mod" << std::endl;
-
-}
-
-void					cmd_print(IOperand *) {
-	std::cout << "print" << std::endl;
-
-}
-
-void					cmd_exit(IOperand *) {
-	std::cout << "exit" << std::endl;
-
-}

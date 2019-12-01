@@ -33,7 +33,11 @@ const char      *NoExit::what() const throw() {
 }
 
 const char      *InvalidAssert::what() const throw() {
-    return "Invalid assert";
+    return "Top of stack doesn't correspond to assert command value";
+}
+
+const char      *InvalidPrint::what() const throw() {
+    return "Type on top of stack isn't a Int8 type";
 }
 
 const char      *InvalidOperationStack::what() const throw() {

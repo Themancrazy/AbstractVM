@@ -6,7 +6,7 @@
 #    By: anjansse <anjansse@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/28 21:57:22 by anjansse          #+#    #+#              #
-#    Updated: 2019/11/25 19:31:31 by anjansse         ###   ########.fr        #
+#    Updated: 2019/11/30 14:58:43 by anjansse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ INCLUDES	= -I inc/ -I ~/.brew/Cellar/boost/1.71.0/include/
 
 LIBRARY		= -L ~/.brew/Cellar/boost/1.71.0/lib/
 
-CC			= clang++ -std=c++11
+CC			= clang++ -std=c++14
 
 SEGV		= -g -fsanitize=address -fsanitize=undefined
 
