@@ -58,26 +58,29 @@ bool 			isNumber(std::string s)
     return s[i] == '\0';
 }
 
-std::string AVM::trimLine(std::string old_line) {
+std::string AVM::trimLine(std::string oldLine) {
 	int	j = -1;
-	std::string new_line;
+	std::string newLine;
 
-	boost::algorithm::trim(old_line);
-	std::replace( old_line.begin(), old_line.end(), '\t', ' ');
-	new_line = old_line;
-	for (int i = -1; i < (int)old_line.length(); ++i) {
-		if (old_line[i] == ' ') {
-			while (old_line[i] == ' ') {
+	boost::algorithm::trim(oldLine);
+	std::replace( oldLine.begin(), oldLine.end(), '\t', ' ');
+	newLine = oldLine;
+	for (int i = -1; i < (int)oldLine.length(); ++i) {
+		if (oldLine[i] == ' ')
+		{
+			while (oldLine[i + 1] == ' ')
 				++i;
-			}
-			new_line[j] =  ' ';
+			newLine[j] = ' ';
 			++j;
 		}
-		new_line[j] = old_line[i];
-		++j;
+		else
+		{
+			newLine[j] = oldLine[i];
+			++j;
+		}
 	}
-	new_line.erase(j);
-	return (new_line);
+	newLine.erase(j);
+	return (newLine);
 }
 
 static void
@@ -93,15 +96,14 @@ checkForComments(std::vector<std::string> *cmd) {
 void		AVM::lineAnalysis(std::string line, bool isStdin, bool *isExit) {
 	std::vector<std::string> command;
 
+	line = trimLine(line);
+	boost::split(command, line, boost::is_any_of(" "));
+	if (command[0][0] == ';' || line.length() < 1)
+		return ;
 	if (isStdin == true && line == ";;" && this->_isExit == false)
 		throw NoExit();
 	else if (isStdin == true && line == ";;" && this->_isExit == true)
 		std::exit(EXIT_SUCCESS);
-	if (isspace(line[0]))
-		line = trimLine(line);
-	boost::split(command, line, boost::is_any_of(" "));
-	if (command[0][0] == ';' || line.length() < 1)
-		return ;
 	checkForComments(&command);
 	if (command.size() > 2)
 		throw ElementNbError();
@@ -203,7 +205,7 @@ void					AVM::cmd_dump(IOperand *) {
 
 void					AVM::cmd_assert(IOperand *value) {
 	logsFile.open(logsFilename, std::fstream::app);
-	if (this->avmStack.front()->getType() != value->getType() || this->avmStack.front()->toString() != value->toString())
+	if (this->avmStack.size() < 1 || this->avmStack.front()->getType() != value->getType() || this->avmStack.front()->toString() != value->toString())
 	{
 		logsFile << "Error: Invalid assert instruction" << std::endl << std::endl;
 		logsFile.close();
